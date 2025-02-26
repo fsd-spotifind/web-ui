@@ -1,0 +1,77 @@
+{
+  "album": {
+    "album_type": "album",
+    "artists": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7cYEt1pqMgXJdq00hAwVpT"
+        },
+        "href": "https://api.spotify.com/v1/artists/7cYEt1pqMgXJdq00hAwVpT",
+        "id": "7cYEt1pqMgXJdq00hAwVpT",
+        "name": "Chase Atlantic",
+        "type": "artist",
+        "uri": "spotify:artist:7cYEt1pqMgXJdq00hAwVpT"
+      }
+    ],
+    "external_urls": {
+      "spotify": "https://open.spotify.com/album/6fCGW5OWBTrtesYXjEze3h"
+    },
+    "href": "https://api.spotify.com/v1/albums/6fCGW5OWBTrtesYXjEze3h",
+    "id": "6fCGW5OWBTrtesYXjEze3h",
+    "images": [
+      {
+        "url": "https://i.scdn.co/image/ab67616d0000b273dafbcc0d1c4251faa086b9ef",
+        "width": 640,
+        "height": 640
+      },
+      {
+        "url": "https://i.scdn.co/image/ab67616d00001e02dafbcc0d1c4251faa086b9ef",
+        "width": 300,
+        "height": 300
+      },
+      {
+        "url": "https://i.scdn.co/image/ab67616d00004851dafbcc0d1c4251faa086b9ef",
+        "width": 64,
+        "height": 64
+      }
+    ],
+    "is_playable": true,
+    "name": "LOST IN HEAVEN",
+    "release_date": "2024-11-01",
+    "release_date_precision": "day",
+    "total_tracks": 13,
+    "type": "album",
+    "uri": "spotify:album:6fCGW5OWBTrtesYXjEze3h"
+  },
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/7cYEt1pqMgXJdq00hAwVpT"
+      },
+      "href": "https://api.spotify.com/v1/artists/7cYEt1pqMgXJdq00hAwVpT",
+      "id": "7cYEt1pqMgXJdq00hAwVpT",
+      "name": "Chase Atlantic",
+      "type": "artist",
+      "uri": "spotify:artist:7cYEt1pqMgXJdq00hAwVpT"
+    }
+  ],
+  "disc_number": 1,
+  "duration_ms": 206815,
+  "explicit": true,
+  "external_ids": {
+    "isrc": "US5262426872"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/track/0BmRj1LXJGPAox0pl3rMbc"
+  },
+  "href": "https://api.spotify.com/v1/tracks/0BmRj1LXJGPAox0pl3rMbc",
+  "id": "0BmRj1LXJGPAox0pl3rMbc",
+  "is_local": false,
+  "is_playable": true,
+  "name": "DIE FOR ME",
+  "popularity": 62,
+  "preview_url": null,
+  "track_number": 2,
+  "type": "track",
+  "uri": "spotify:track:0BmRj1LXJGPAox0pl3rMbc"
+}
