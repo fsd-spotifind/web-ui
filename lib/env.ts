@@ -34,12 +34,7 @@ export const env = createEnv({
     ),
     SPOTIFY_CLIENT_ID: z.string(),
     SPOTIFY_CLIENT_SECRET: z.string(),
-    DB_HOST: z.string(),
-    DB_PORT: z.number({ coerce: true }),
-    DB_DATABASE: z.string(),
-    DB_USERNAME: z.string(),
-    DB_PASSWORD: z.string(),
-    DB_SCHEMA: z.string(),
+    DATABASE_URL: z.string(),
   },
 
   /**
@@ -69,12 +64,7 @@ export const env = createEnv({
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? process.env.VERCEL_URL,
     SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
     SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
-    DB_HOST: process.env.DB_HOST,
-    DB_PORT: process.env.DB_PORT,
-    DB_DATABASE: process.env.DB_DATABASE,
-    DB_USERNAME: process.env.DB_USERNAME,
-    DB_PASSWORD: process.env.DB_PASSWORD,
-    DB_SCHEMA: process.env.DB_SCHEMA,
+    DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
   /**

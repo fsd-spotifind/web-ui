@@ -4,11 +4,7 @@ import { env } from "../env";
 
 export const auth = betterAuth({
   database: new Pool({
-    host: env.DB_HOST,
-    port: env.DB_PORT,
-    user: env.DB_USERNAME,
-    database: env.DB_DATABASE,
-    password: env.DB_PASSWORD,
+    connectionString: env.DATABASE_URL,
   }),
   socialProviders: {
     spotify: {
