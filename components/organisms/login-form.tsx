@@ -1,6 +1,4 @@
 import { SignInWithSpotify } from "@/components/molecules/signin-with-spotify-btn";
-import { cn } from "@/lib/utils";
-
 import {
   Card,
   CardContent,
@@ -8,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card";
+import { cn } from "@/lib/utils";
 
 export function LoginForm({
   className,
@@ -18,24 +17,16 @@ export function LoginForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with your Apple or Google account
-          </CardDescription>
+          <CardDescription>Login with your Spotify account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="grid gap-6">
-              <div className="flex flex-col gap-4">
-                <SignInWithSpotify />
-              </div>
+          <div className="grid gap-6">
+            <div className="flex flex-col gap-4">
+              <SignInWithSpotify />
             </div>
-          </form>
+          </div>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }
