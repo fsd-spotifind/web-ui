@@ -4,7 +4,7 @@ import { default as track02 } from "@/data/mock/tracks/02.json";
 import { default as track03 } from "@/data/mock/tracks/03.json";
 import { default as track04 } from "@/data/mock/tracks/04.json";
 
-export default function HomePage() {
+export default function Profile() {
   const tracks = [track01, track02, track03, track04];
 
   return (
