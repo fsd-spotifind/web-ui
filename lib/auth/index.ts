@@ -15,4 +15,5 @@ export const auth = betterAuth({
     },
   },
   logger: console,
+  trustedOrigins: [env.BETTER_AUTH_URL],
 });
