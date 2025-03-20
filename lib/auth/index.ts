@@ -14,6 +14,10 @@ export const auth = betterAuth({
       redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/spotify`,
     },
   },
-  logger: console,
+  logger: {
+    disabled: false,
+    level: "debug",
+    log: (_, message, ...rest) => console.log(message, ...rest),
+  },
   trustedOrigins: [env.BETTER_AUTH_URL],
 });
