@@ -26,4 +26,11 @@ export const vibeThemes = {
     tabActive: "bg-rose-300 text-white",
     itemBg: "bg-rose-200",
   },
+  green: {
+    bg: "bg-green-50",
+    text: "text-green-900",
+    accent: "text-green-400",
+    statLabel: "text-green-500",
+    tabBg: "bg-green-100",
+  },
 };

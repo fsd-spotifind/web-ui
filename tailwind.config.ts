@@ -11,7 +11,7 @@ export default {
   safelist: [
     {
       pattern:
-        /(bg|text|accent|border)-(orange|blue|rose)-(50|100|200|300|400|500|900)/,
+        /(bg|text|accent|border)-(orange|blue|rose|green)-(50|100|200|300|400|500|900)/,
       variants: ["hover", "focus"],
     },
   ],
