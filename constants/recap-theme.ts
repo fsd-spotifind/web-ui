@@ -32,5 +32,7 @@ export const vibeThemes = {
     accent: "text-green-400",
     statLabel: "text-green-500",
     tabBg: "bg-green-100",
+    tabActive: "bg-green-300 text-white",
+    itemBg: "bg-green-200",
   },
 };
