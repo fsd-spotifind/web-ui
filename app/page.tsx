@@ -1,4 +1,4 @@
-import { SotdCard } from "@/components/molecules/sotd-card";
+import { SongCard } from "@/components/molecules/song-card";
 import { default as track01 } from "@/data/mock/tracks/01.json";
 import { default as track02 } from "@/data/mock/tracks/02.json";
 import { default as track03 } from "@/data/mock/tracks/03.json";
@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-4 mx-8 my-6">
       {tracks.map((track) => (
-        <SotdCard
+        <SongCard
           key={track.id}
           albumCoverSrc={track.album.images[0].url}
           trackName={track.name}
