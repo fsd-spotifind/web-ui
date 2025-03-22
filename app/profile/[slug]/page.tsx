@@ -3,12 +3,17 @@
 import { useState } from "react";
 import { SotdCard } from "@/components/molecules/sotd-card";
 import { ProfileSection } from "@/components/molecules/profile-section";
+import { Recap } from "@/components/molecules/recap";
+import { vibeThemes } from "@/constants/recap-theme";
 import { default as track01 } from "@/data/mock/tracks/01.json";
+import { default as track02 } from "@/data/mock/tracks/02.json";
+import { default as track03 } from "@/data/mock/tracks/03.json";
 
-const tabs = ["Song of the Day", "Spotify Recap"];
+const TABS = ["Song of the Day", "Spotify Recap"];
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState("Song of the Day");
+  const [activeTab, setActiveTab] =
+    useState<(typeof TABS)[number]>("Song of the Day");
 
   return (
     <div className="flex flex-col gap-6 mx-auto my-6 max-w-screen-md">
@@ -19,7 +24,7 @@ export default function Profile() {
         topArtists={["Fly By Midnight", "Lany", "Benson Boone"]}
       />
       <div className="flex border-b border-gray-200 text-sm text-gray-500 font-medium tracking-wide">
-        {tabs.map((tab) => (
+        {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -45,7 +50,26 @@ export default function Profile() {
         </div>
       )}
       {activeTab === "Spotify Recap" && (
-        <div className="text-gray-500 text-sm italic">No recap yet</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+          <Recap
+            vibe="spending nights collecting memories"
+            totalTracks={286}
+            totalDuration={997}
+            uniqueArtists={76}
+            topArtists={[
+              track01.artists[0].name,
+              track02.artists[0].name,
+              track03.artists[0].name,
+            ]}
+            topAlbums={[
+              track01.album.name,
+              track02.album.name,
+              track03.album.name,
+            ]}
+            topTracks={[track01.name, track02.name, track03.name]}
+            theme={vibeThemes.orange}
+          />
+        </div>
       )}
     </div>
   );
