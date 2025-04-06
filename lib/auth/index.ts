@@ -10,6 +10,7 @@ export const auth = betterAuth({
     spotify: {
       clientId: env.SPOTIFY_CLIENT_ID,
       clientSecret: env.SPOTIFY_CLIENT_SECRET,
+      scope: ["user-read-email", "user-read-recently-played"],
     },
   },
 });
