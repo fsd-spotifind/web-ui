@@ -24,18 +24,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {/* <Providers> */}
-        {/* <QueryClientProvider client={queryClient}> */}
-        <html lang="en">
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} bg-[#FEFCF0] antialiased max-w-5xl mx-auto `}
-          >
-            {children}
-          </body>
-        </html>
-        {/* </QueryClientProvider> */}
-        {/* </Providers> */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} bg-[#FEFCF0] antialiased max-w-5xl mx-auto `}
+      >
+        {children}
       </body>
     </html>
   );

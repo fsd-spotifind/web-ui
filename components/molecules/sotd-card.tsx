@@ -25,7 +25,7 @@ export const SotdCard = ({
         />
       </div>
       <div className="flex-[2] min-w-0">
-        <Blockquote>{note}</Blockquote>
+        <Blockquote className="border border-gray-300">{note}</Blockquote>
       </div>
     </div>
   );

@@ -7,9 +7,6 @@ import { SotdCard } from "@/components/molecules/sotd-card";
 import { ProfileSection } from "@/components/molecules/profile-section";
 import { Recap } from "@/components/molecules/recap";
 import { vibeThemes } from "@/constants/recap-theme";
-import { default as track01 } from "@/data/mock/tracks/01.json";
-import { default as track02 } from "@/data/mock/tracks/02.json";
-import { default as track03 } from "@/data/mock/tracks/03.json";
 
 // Define the SOTD data type
 interface SotdData {
@@ -49,6 +46,62 @@ interface SpotifyProfile {
   uri: string;
 }
 
+// Add statistics interface
+interface Statistics {
+  id: string;
+  userId: string;
+  period: string;
+  totalTracks: number;
+  totalDuration: number;
+  uniqueArtists: number;
+  vibe: string;
+  topTracks: Array<{
+    id: string;
+    name: string;
+    artists: Array<{
+      id: string;
+      name: string;
+    }>;
+    album: {
+      id: string;
+      name: string;
+      total_tracks: number;
+      images: Array<{
+        url: string;
+        height: number;
+        width: number;
+      }>;
+      release_date: string;
+    };
+    duration_ms: number;
+    popularity: number;
+  }>;
+  topArtists: Array<{
+    id: string;
+    name: string;
+    genres: string[];
+    images: Array<{
+      url: string;
+      height: number;
+      width: number;
+    }>;
+    popularity: number;
+  }>;
+  topAlbums: Array<{
+    id: string;
+    name: string;
+    total_tracks: number;
+    images: Array<{
+      url: string;
+      height: number;
+      width: number;
+    }>;
+    release_date: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const TABS = ["Song of the Day", "Spotify Recap"];
 
 export default function Profile({
@@ -62,140 +115,183 @@ export default function Profile({
     useState<(typeof TABS)[number]>("Song of the Day");
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
   const [sotdData, setSotdData] = useState<SotdData | null>(null);
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
-  const [isSotdLoading, setIsSotdLoading] = useState(true);
-  const [profileError, setProfileError] = useState<Error | null>(null);
-  const [sotdError, setSotdError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [hasNoSotd, setHasNoSotd] = useState(false);
-  const [isConnectionError, setIsConnectionError] = useState(false);
+  const [currentDate, setCurrentDate] = useState<string>("");
+  // Add statistics state
+  const [statistics, setStatistics] = useState<Statistics | null>(null);
 
-  // Get current date in YYYY-MM-DD format using UTC
-  const date = new Date();
-  const offset = date.getTimezoneOffset();
-  const currentDate = new Date(date.getTime() - offset * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
-  console.log("Current UTC date:", currentDate);
-  // Fetch profile data
+  // Set current date in useEffect to avoid hydration mismatch
   useEffect(() => {
-    const fetchProfile = async () => {
+    // Get current date in YYYY-MM-DD format using UTC
+    const date = new Date();
+    const offset = date.getTimezoneOffset();
+    const utcDate = new Date(date.getTime() - offset * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
+    setCurrentDate(utcDate);
+  }, []);
+
+  // Fetch all data in a single useEffect to avoid race conditions
+  useEffect(() => {
+    const fetchAllData = async () => {
+      if (!currentDate) return; // Wait for currentDate to be set
+
+      setIsLoading(true);
+      setError(null);
+      setHasNoSotd(false);
+
       try {
-        setIsProfileLoading(true);
-        console.log("Fetching profile for:", resolvedParams.slug);
-        const response = await fetch(`/api/user/${resolvedParams.slug}`);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch profile: ${await response.text()}`);
+        // Fetch profile data
+        const profileResponse = await fetch(`/api/user/${resolvedParams.slug}`);
+        if (!profileResponse.ok) {
+          throw new Error(
+            `Failed to fetch profile: ${await profileResponse.text()}`
+          );
         }
+        const profileData = await profileResponse.json();
+        setProfile(profileData);
 
-        const data = await response.json();
-        setProfile(data);
-        setProfileError(null);
-      } catch (error) {
-        console.error("Profile fetch error:", error);
-        setProfileError(
-          error instanceof Error ? error : new Error(String(error))
+        // Fetch statistics data
+        const statsResponse = await fetch(
+          `/api/user/${resolvedParams.slug}/statistics/weekly`
         );
-      } finally {
-        setIsProfileLoading(false);
-      }
-    };
 
-    fetchProfile();
-  }, [resolvedParams.slug]);
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
 
-  // Fetch SOTD data
-  useEffect(() => {
-    const fetchSotd = async () => {
-      // Only fetch SOTD if we have a profile
-      if (!profile) return;
-
-      try {
-        setIsSotdLoading(true);
-        setHasNoSotd(false);
-        setIsConnectionError(false);
-        console.log("Fetching SOTDs for:", resolvedParams.slug);
-
-        // Use a timeout to prevent hanging requests
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch(`/api/user/${resolvedParams.slug}/sotds`, {
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            console.log("SOTD not found - this is a valid state");
-            setSotdData(null);
-            setSotdError(null);
-            setHasNoSotd(true);
-            return;
+          // Check if we have statistics data
+          if (statsData && statsData.length > 0) {
+            setStatistics(statsData[0]); // Use the first entry
+          } else {
+            setStatistics(null);
           }
-          throw new Error(`Failed to fetch SOTD: ${await response.text()}`);
+        } else if (statsResponse.status !== 404) {
+          // Don't throw error for 404, just set statistics to null
         }
 
-        const data = await response.json();
-        console.log("SOTDs data:", data);
+        // Fetch SOTD data
+        const sotdResponse = await fetch(
+          `/api/user/${resolvedParams.slug}/sotds`
+        );
 
-        // Check if there's an entry for today's date
-        if (
-          data.entries &&
-          data.entries[currentDate] &&
-          data.entries[currentDate].length > 0
-        ) {
-          // Get the first SOTD for today
-          const todaySotd = data.entries[currentDate][0];
-          console.log("Found SOTD for today:", todaySotd);
-          setSotdData(todaySotd);
-          setSotdError(null);
-          setHasNoSotd(false);
-        } else {
-          console.log("No SOTD found for today");
+        if (sotdResponse.ok) {
+          const sotdData = await sotdResponse.json();
+
+          // Check if there's an entry for today's date
+          if (
+            sotdData.entries &&
+            sotdData.entries[currentDate] &&
+            sotdData.entries[currentDate].length > 0
+          ) {
+            // Get the first SOTD for today
+            const todaySotd = sotdData.entries[currentDate][0];
+            setSotdData(todaySotd);
+            setHasNoSotd(false);
+          } else {
+            setSotdData(null);
+            setHasNoSotd(true);
+          }
+        } else if (sotdResponse.status === 404) {
           setSotdData(null);
-          setSotdError(null);
           setHasNoSotd(true);
         }
       } catch (error) {
-        console.error("SOTD fetch error:", error);
+        setError(error instanceof Error ? error : new Error(String(error)));
 
         // Check if it's a connection error
         if (
           error instanceof Error &&
           (error.message.includes("fetch failed") ||
             error.message.includes("network") ||
-            error.message.includes("socket") ||
-            error.message.includes("abort"))
+            error.message.includes("socket"))
         ) {
-          console.log("Connection error detected");
-          setIsConnectionError(true);
-          setSotdError(
-            new Error(
-              "Connection to the server failed. Please try again later."
-            )
-          );
-        } else {
-          // For other errors, treat as if no SOTD is selected
-          console.log("Other error detected - treating as no SOTD selected");
-          setSotdData(null);
-          setSotdError(null);
-          setHasNoSotd(true);
         }
       } finally {
-        setIsSotdLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchSotd();
-  }, [resolvedParams.slug, currentDate, profile]);
+    fetchAllData();
+  }, [resolvedParams.slug, currentDate]);
 
   // Determine if we have an SOTD
   const hasSotd = !!sotdData;
 
-  // Show loading state while either profile or SOTD is loading
-  if (isProfileLoading || isSotdLoading) {
+  // Extract top genres from top artists
+  const topGenres = statistics?.topArtists
+    ? Array.from(
+        new Set(
+          statistics.topArtists
+            .flatMap((artist) => artist.genres)
+            .filter(Boolean)
+        )
+      ).slice(0, 3)
+    : [];
+
+  // Extract top artist names
+  const topArtistNames = statistics?.topArtists
+    ? statistics.topArtists.map((artist) => artist.name).slice(0, 3)
+    : [];
+
+  // Extract top track names
+  const topTrackNames = statistics?.topTracks
+    ? statistics.topTracks.map((track) => track.name).slice(0, 3)
+    : [];
+
+  // Extract top album names
+  const topAlbumNames = statistics?.topAlbums
+    ? statistics.topAlbums.map((album) => album.name).slice(0, 3)
+    : [];
+
+  // Extract top artist images (use album cover as fallback if no artist image)
+  const topArtistImages = statistics?.topArtists
+    ? statistics.topArtists
+        .map((artist) => {
+          // If artist has images, use the first one
+          if (artist.images && artist.images.length > 0) {
+            return artist.images[0].url;
+          }
+          // Otherwise, find a track by this artist and use its album cover
+          const artistTrack = statistics.topTracks.find((track) =>
+            track.artists.some((a) => a.name === artist.name)
+          );
+          if (artistTrack && artistTrack.album.images.length > 0) {
+            return artistTrack.album.images[0].url;
+          }
+          // Fallback to a default image if no album cover found
+          return "/default-album.png";
+        })
+        .slice(0, 3)
+    : [];
+
+  // Extract top album images
+  const topAlbumImages = statistics?.topAlbums
+    ? statistics.topAlbums
+        .map((album) => {
+          if (album.images && album.images.length > 0) {
+            return album.images[0].url;
+          }
+          return "/default-album.png";
+        })
+        .slice(0, 3)
+    : [];
+
+  // Extract top track images (album covers)
+  const topTrackImages = statistics?.topTracks
+    ? statistics.topTracks
+        .map((track) => {
+          if (track.album.images && track.album.images.length > 0) {
+            return track.album.images[0].url;
+          }
+          return "/default-album.png";
+        })
+        .slice(0, 3)
+    : [];
+
+  // Show loading state while data is loading
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
@@ -204,7 +300,7 @@ export default function Profile({
   }
 
   // Show error state if profile fetch failed
-  if (profileError) {
+  if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="text-red-500 mb-4">
@@ -224,9 +320,13 @@ export default function Profile({
     <div className="flex flex-col gap-6 mx-auto my-6 max-w-screen-md">
       <ProfileSection
         username={profile?.name || "Loading..."}
-        bio={`hi`}
-        topGenres={["Pop", "R&B", "Blues"]}
-        topArtists={["Fly By Midnight", "Lany", "Benson Boone"]}
+        bio={`just use a hashmap ☝🏼`}
+        topGenres={topGenres.length > 0 ? topGenres : ["Pop", "R&B", "Blues"]}
+        topArtists={
+          topArtistNames.length > 0
+            ? topArtistNames
+            : ["Fly By Midnight", "Lany", "Benson Boone"]
+        }
         photoUrl={profile?.image}
       />
       <div className="flex border-b border-gray-200 text-sm text-gray-500 font-medium tracking-wide">
@@ -246,31 +346,7 @@ export default function Profile({
       </div>
       {activeTab === "Song of the Day" && (
         <div className="flex flex-col gap-4">
-          {sotdError ? (
-            <div className="text-center py-8">
-              <p className="text-red-500 mb-4">
-                {isConnectionError
-                  ? "Connection to the server failed. The Song of the Day service might be temporarily unavailable."
-                  : "Unable to load your Song of the Day. Please try again later."}
-              </p>
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => router.push(`/profile/${resolvedParams.slug}`)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                >
-                  Retry
-                </button>
-                <button
-                  onClick={() =>
-                    router.push(`/profile/${resolvedParams.slug}/select-sotd`)
-                  }
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-                >
-                  Select Your Song of the Day
-                </button>
-              </div>
-            </div>
-          ) : hasSotd && sotdData ? (
+          {hasSotd && sotdData ? (
             <SotdCard
               albumCoverSrc={sotdData.track.album.images[0].url}
               trackName={sotdData.track.name}
@@ -299,24 +375,27 @@ export default function Profile({
       )}
       {activeTab === "Spotify Recap" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-          <Recap
-            vibe="spending nights collecting memories"
-            totalTracks={286}
-            totalDuration={997}
-            uniqueArtists={76}
-            topArtists={[
-              track01.artists[0].name,
-              track02.artists[0].name,
-              track03.artists[0].name,
-            ]}
-            topAlbums={[
-              track01.album.name,
-              track02.album.name,
-              track03.album.name,
-            ]}
-            topTracks={[track01.name, track02.name, track03.name]}
-            theme={vibeThemes.orange}
-          />
+          {statistics ? (
+            <Recap
+              vibe={statistics.vibe || "spending nights collecting memories"}
+              totalTracks={statistics.totalTracks}
+              totalDuration={statistics.totalDuration}
+              uniqueArtists={statistics.uniqueArtists}
+              topArtists={topArtistNames}
+              topAlbums={topAlbumNames}
+              topTracks={topTrackNames}
+              topArtistImages={topArtistImages}
+              topAlbumImages={topAlbumImages}
+              topTrackImages={topTrackImages}
+              theme={vibeThemes.orange}
+            />
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">
+                No Spotify statistics available yet.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -29,11 +29,11 @@ export const SongCard = ({
       </div>
 
       <div className="flex-1">
-        <h2 className="text-2xl font-bold">{trackName}</h2>
-        <p className="text-sm text-gray-500 uppercase tracking-wide">
+        <h2 className="text-lg font-bold">{trackName}</h2>
+        <p className="text-xs text-gray-500 uppercase tracking-wide">
           {trackAlbumName}
         </p>
-        <p className="text-lg text-gray-700">{artist}</p>
+        <p className="text-xs text-gray-700">{artist}</p>
       </div>
     </div>
   );

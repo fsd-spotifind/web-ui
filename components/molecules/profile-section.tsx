@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import { ProfileSubsection } from "@/components/atoms/profile-subsection";
-import { Button } from "@/components/atoms/button";
+// import { Button } from "@/components/atoms/button";
 export const ProfileSection = ({
   username,
   photoUrl,
@@ -35,9 +35,9 @@ export const ProfileSection = ({
           <div className="text-gray-500 overflow-hidden text-ellipsis">
             {bio}
           </div>
-          <Button variant="outline" className="hover:bg-gray-50">
+          {/* <Button variant="outline" className="hover:bg-gray-50">
             Add Friend
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>
