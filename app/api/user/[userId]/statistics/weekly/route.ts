@@ -14,8 +14,6 @@ export async function GET(
     const params = await context.params;
     const userId = params.userId;
     
-    console.log(`[DEBUG] Fetching statistics for user: ${userId}`);
-    
     // Verify the user is authenticated
     const { data: session } = await betterFetch<Session>("/api/auth/get-session", {
       baseURL: request.nextUrl.origin,
@@ -24,17 +22,13 @@ export async function GET(
       },
     });
     
-    console.log(`[DEBUG] Session found: ${!!session}`);
-    
     // If no session or userId doesn't match session user, return unauthorized
     if (!session || session.user.id !== userId) {
-      console.log(`[DEBUG] Unauthorized access. Session user: ${session?.user?.id}, Requested user: ${userId}`);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     
     // Check if API_URL is defined
     if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.error("NEXT_PUBLIC_API_URL environment variable is not defined");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 }
@@ -43,7 +37,6 @@ export async function GET(
     
     // Use the correct URL structure as shown in the curl command
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}/statistics/weekly`;
-    console.log(`[DEBUG] Making request to: ${apiUrl}`);
     
     // Forward the request to your actual API
     const response = await fetch(
@@ -63,17 +56,12 @@ export async function GET(
       }
     );
     
-    console.log(`[DEBUG] API response status: ${response.status}`);
-    
     // Handle different response statuses
     if (response.status === 404) {
-      console.log(`[DEBUG] No statistics found (404)`);
       return NextResponse.json([], { status: 200 });
     }
     
     if (response.status !== 200) {
-      const errorText = await response.text();
-      console.error(`[DEBUG] API error (${response.status}): ${errorText}`);
       return NextResponse.json(
         { error: `API error: ${response.statusText}` },
         { status: response.status }
@@ -82,11 +70,9 @@ export async function GET(
     
     // Return the statistics data
     const data = await response.json();
-    console.log(`[DEBUG] Statistics data:`, JSON.stringify(data));
     
     return NextResponse.json(data);
-  } catch (error) {
-    console.error("[DEBUG] Error fetching statistics:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch statistics" },
       { status: 500 }

@@ -40,7 +40,6 @@ export async function GET(
     
     // Use the correct URL structure as shown in the curl command
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}/sotds/${date}`;
-    console.log(`[DEBUG] Making request to: ${apiUrl}`);
     
     // Forward the request to your actual API
     const response = await fetch(
@@ -122,7 +121,6 @@ export async function POST(
     
     // Use the correct URL structure as shown in the curl command
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}/sotds/${date}`;
-    console.log(`[DEBUG] Making POST request to: ${apiUrl}`);
     
     // Forward the request to your actual API
     const response = await fetch(

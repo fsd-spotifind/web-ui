@@ -34,53 +34,20 @@ export default function SelectSotdPage({
     const fetchRecommendedTracks = async () => {
       try {
         setIsLoading(true);
-        setError(null);
-        console.log(
-          `[DEBUG] Fetching recommended tracks for user: ${resolvedParams.slug}`
-        );
-
         const response = await fetch(
           `/api/user/${resolvedParams.slug}/sotds/recommended`
         );
 
-        console.log(`[DEBUG] Response status: ${response.status}`);
-
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error(
-            "[DEBUG] Error fetching recommended tracks:",
-            errorText
+          throw new Error(
+            `Failed to fetch recommended tracks: ${response.status}`
           );
-          throw new Error("Failed to fetch recommended tracks");
         }
 
         const data = await response.json();
-        console.log(`[DEBUG] Received data:`, data);
-
-        // Handle both formats: { tracks: [...] } or direct array
-        let tracks = [];
-        if (data.tracks) {
-          tracks = data.tracks;
-          console.log(
-            `[DEBUG] Using tracks from data.tracks: ${tracks.length}`
-          );
-        } else if (Array.isArray(data)) {
-          tracks = data;
-          console.log(
-            `[DEBUG] Using data directly as tracks array: ${tracks.length}`
-          );
-        } else {
-          console.log(`[DEBUG] No tracks found in response data`);
-        }
-
-        if (tracks.length > 0) {
-          console.log(`[DEBUG] First track:`, tracks[0]);
-        }
-
-        setRecommendedTracks(tracks);
-      } catch (err) {
-        console.error("[DEBUG] Error in fetchRecommendedTracks:", err);
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setRecommendedTracks(data.tracks || []);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : String(error));
       } finally {
         setIsLoading(false);
       }
@@ -89,21 +56,17 @@ export default function SelectSotdPage({
     fetchRecommendedTracks();
   }, [resolvedParams.slug]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!selectedTrack) return;
 
     try {
       setIsSubmitting(true);
-      setError(null);
-
-      // Format the request body according to the API endpoint requirements
       const requestBody = {
-        track_id: selectedTrack.id,
-        note: note || "",
-        mood: mood || "",
+        trackId: selectedTrack.id,
+        note: note,
+        mood: mood,
       };
-
-      console.log("[DEBUG] Submitting SOTD with data:", requestBody);
 
       const response = await fetch(`/api/user/${resolvedParams.slug}/sotds`, {
         method: "POST",
@@ -114,14 +77,12 @@ export default function SelectSotdPage({
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error submitting SOTD:", errorText);
-        throw new Error("Failed to submit SOTD");
+        throw new Error(`Failed to submit SOTD: ${response.status}`);
       }
 
       router.push(`/profile/${resolvedParams.slug}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit SOTD");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
     } finally {
       setIsSubmitting(false);
     }
